@@ -38,8 +38,9 @@ app.post("/scanURL", (req, res) => {
         const lines = data.split("\n").filter((line) => line.trim() !== "");
 
         console.log("Lines:", lines); // Array of lines
-
-        res.send(`File lines: ${lines.join(", ")}`);
+        res.json({ data: lines });
+        // res.send(`File lines: ${lines.join(", ")}`);
+        // res.send(`{data: ${lines}}`);
       });
     });
   } else {
