@@ -12,7 +12,7 @@ app.get("/", (req, res) => {
 app.post("/scanURL", (req, res) => {
   const { url, scanType } = req.body;
 
-  const subdomain_scan = `subfinder -d ${url}`;
+  const subdomain_scan = `subfinder -d ${url} -o subd.txt`;
 
   if (scanType === "subdomain") {
     exec(subdomain_scan, (error, stdout, stderr) => {
