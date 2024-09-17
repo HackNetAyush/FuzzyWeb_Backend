@@ -15,33 +15,35 @@ app.get("/", (req, res) => {
 app.post("/scanURL", (req, res) => {
   const { url, scanType } = req.body;
 
-  const subdomain_scan = `subfinder -d ${url} -o subd.txt`;
-
   if (scanType === "subdomain") {
+    const subdomain_scan = `subfinder -d ${url} -o subd.txt`;
+
     exec(subdomain_scan, (error, stdout, stderr) => {
       if (error) {
         console.error(error);
-        return res.status(500).send("Error scanning url");
+        return res.status(500).send("Error scanning URL");
       }
 
       console.log("stdout: ", stdout);
       console.error("stderr: ", stderr);
-      //   res.send(`Command output: ${stdout}`);
+
+      // Reading the file after the subdomain scan completes
+      fs.readFile("./subd.txt", "utf8", (err, data) => {
+        if (err) {
+          console.error("Error reading file:", err);
+          return res.status(500).send("Error reading file.");
+        }
+
+        // Split the file content into lines
+        const lines = data.split("\n").filter((line) => line.trim() !== "");
+
+        console.log("Lines:", lines); // Array of lines
+
+        res.send(`File lines: ${lines.join(", ")}`);
+      });
     });
-
-    fs.readFile("./subd.txt", "utf8", (err, data) => {
-      if (err) {
-        console.error("Error reading file:", err);
-        return res.status(500).send("Error reading file.");
-      }
-
-      // Split the file content into lines
-      const lines = data.split("\n").filter((line) => line.trim() !== "");
-
-      console.log("Lines:", lines); // Array of lines
-
-      res.send(`File lines: ${lines.join(", ")}`);
-    });
+  } else {
+    res.status(400).send("Invalid scanType");
   }
 
   console.log("URL: ", url);
