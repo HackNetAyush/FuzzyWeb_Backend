@@ -16,7 +16,7 @@ app.post("/scanURL", (req, res) => {
   const { url, scanType } = req.body;
 
   if (scanType === "subdomain") {
-    const subdomain_scan = `subfinder -d ${url} -o subd.txt`;
+    const subdomain_scan = `truncate -s 0 subd.txt && subfinder -d ${url} -o subd.txt`;
 
     exec(subdomain_scan, (error, stdout, stderr) => {
       if (error) {
