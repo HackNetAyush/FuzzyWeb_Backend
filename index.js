@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const { exec } = require("child_process");
+const fs = require("fs");
+
 const app = express();
 app.use(express.json());
 
@@ -24,7 +26,21 @@ app.post("/scanURL", (req, res) => {
 
       console.log("stdout: ", stdout);
       console.error("stderr: ", stderr);
-      res.send(`Command output: ${stdout}`);
+      //   res.send(`Command output: ${stdout}`);
+    });
+
+    fs.readFile("./subd.txt", "utf8", (err, data) => {
+      if (err) {
+        console.error("Error reading file:", err);
+        return res.status(500).send("Error reading file.");
+      }
+
+      // Split the file content into lines
+      const lines = data.split("\n").filter((line) => line.trim() !== "");
+
+      console.log("Lines:", lines); // Array of lines
+
+      res.send(`File lines: ${lines.join(", ")}`);
     });
   }
 
