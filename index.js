@@ -8,6 +8,8 @@ app.use(express.json());
 
 app.use(cors());
 
+// const ssl_cmd = "nmap --script ssl-enum-ciphers -p 443 {url}"
+
 app.get("/", (req, res) => {
   res.send("Hellooooo");
 });
@@ -43,6 +45,8 @@ app.post("/scanURL", (req, res) => {
         // res.send(`{data: ${lines}}`);
       });
     });
+  } else if (scanType === "ssl") {
+    const cmd = `nmap --script ssl-enum-ciphers -p 443 ${url} -oX sslReport.xml  && python xml_to_json.py -x sslReport.xml -o sslReport.json `;
   } else {
     res.status(400).send("Invalid scanType");
   }
