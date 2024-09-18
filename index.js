@@ -84,7 +84,7 @@ app.post("/scanURL", (req, res) => {
     });
   } else if (scanType === "vulnerability") {
     // console.log("VVVVV");
-    const cmd = `nmap --script=vuln -sC -sV ${url} -oX vulReport.xml && python3 xml_to_json.py -x vulReport.xml -o vulReport.json `;
+    const cmd = `nmap --script vulners -sC -sV ${url} -oX vulReport.xml && python3 xml_to_json.py -x vulReport.xml -o vulReport.json `;
     const filePath = path.join(__dirname, "vulReport.json");
 
     exec(cmd, (error, stdout, stderr) => {
@@ -107,6 +107,34 @@ app.post("/scanURL", (req, res) => {
         } catch (parseError) {
           res.status(500).send("Error parsing JSON");
         }
+      });
+    });
+  } else if (scanType === "fuzz") {
+    const cmd = `ffuf -u https://${url}/FUZZ -w ../SecLists/Fuzzing/1-4_all_letters_a-z.txt `;
+
+    exec(cmd, (error, stdout, stderr) => {
+      if (error) {
+        console.error(error);
+        return res.status(500).send("Error scanning URL");
+      }
+
+      console.log("stdout: ", stdout);
+      console.error("stderr: ", stderr);
+
+      // Reading the file after the subdomain scan completes
+      fs.readFile("./fuzz_output.txt", "utf8", (err, data) => {
+        if (err) {
+          console.error("Error reading file:", err);
+          return res.status(500).send("Error reading file.");
+        }
+
+        // Split the file content into lines
+        const lines = data.split("\n").filter((line) => line.trim() !== "");
+
+        console.log("Lines:", lines); // Array of lines
+        res.json({ data: lines });
+        // res.send(`File lines: ${lines.join(", ")}`);
+        // res.send(`{data: ${lines}}`);
       });
     });
   } else {
