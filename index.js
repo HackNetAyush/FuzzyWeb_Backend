@@ -82,6 +82,33 @@ app.post("/scanURL", (req, res) => {
         }
       });
     });
+  } else if (scanType === "vulnerability") {
+    // console.log("VVVVV");
+    const cmd = `nmap --script=vuln -sC -sV ${url} -oX vulReport.xml && python3 xml_to_json.py -x vulReport.xml -o vulReport.json `;
+    const filePath = path.join(__dirname, "vulReport.json");
+
+    exec(cmd, (error, stdout, stderr) => {
+      if (error) {
+        console.error(error);
+        return res.status(500).send("Error scanning URL");
+      }
+
+      console.log("stdout: ", stdout);
+      console.error("stderr: ", stderr);
+
+      fs.readFile(filePath, "utf8", (err, data) => {
+        if (err) {
+          res.status(500).send("Error reading file");
+          return;
+        }
+        try {
+          const jsonData = JSON.parse(data);
+          res.json(jsonData);
+        } catch (parseError) {
+          res.status(500).send("Error parsing JSON");
+        }
+      });
+    });
   } else {
     res.status(400).send("Invalid scanType");
   }
