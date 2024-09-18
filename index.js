@@ -110,9 +110,10 @@ app.post("/scanURL", (req, res) => {
       });
     });
   } else if (scanType === "fuzz") {
-    const cmd = `ffuf -u https://${url}/FUZZ -w ../SecLists/Fuzzing/1-4_all_letters_a-z.txt `;
+    const cmd = `ffuf -u https://${url}/FUZZ -w ../SecLists/Fuzzing/1-4_all_letters_a-z.txt -o fuzz_output.txt `;
 
     exec(cmd, (error, stdout, stderr) => {
+      console.log("Scan Started");
       if (error) {
         console.error(error);
         return res.status(500).send("Error scanning URL");
